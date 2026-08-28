@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="tacolab.client/tacolab.client.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+  <Project Path="TacoLab.Server/TacoLab.Server.csproj" />
+</Solution>

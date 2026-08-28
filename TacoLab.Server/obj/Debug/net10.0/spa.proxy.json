@@ -1,0 +1,10 @@
+{
+"SpaProxyServer": {
+"ServerUrl": "https://localhost:65515",
+"RedirectUrl": "",
+"LaunchCommand": "npm run dev",
+"WorkingDirectory": "C:\\Proyectos\\kevin\\TacoLab\\TacoLab.Server\\..\\tacolab.client",
+"MaxTimeoutInSeconds": "120",
+"KeepRunning": "false"
+}
+}
