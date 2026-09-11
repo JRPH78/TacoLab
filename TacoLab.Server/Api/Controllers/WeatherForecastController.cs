@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace TacoLab.Server.Controllers
+namespace TacoLab.Server.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]

@@ -6,18 +6,20 @@ import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 import TacoMolecule from "./components/TacoMolecule";
-
-const NEGRO = "#0B0B0A";
-const PAPEL = "#F4EFE3";
-const REACTIVO = "#3ECF6E";
-const FUEGO = "#E8481C";
-const NEON = "#F5B700";
-const OUTFIT = "'Outfit', sans-serif";
-const MONO = "'IBM Plex Mono', monospace";
-// Fuente manuscrita para las "notas al margen". Añade el import de Google Fonts
-// (Caveat) en tu <head> / _document — aquí solo se referencia con fallback cursive.
-const HAND = "'Caveat', cursive";
-
+import {
+  NEGRO,
+  NEON,
+  OUTFIT,
+  MONO,
+  REACTIVO,
+  PAPEL,
+  FUEGO,
+  HAND,
+} from "../../utilities/PaleteColors";
+import Watermark from "../../components/Watermark";
+import { useNavigate } from "react-router-dom";
+import { NotebookGrid } from "../../components/NotebookGrid";
+import { Grain } from "../../components/Grain";
 /** Revela una sección al entrar en el viewport, una sola vez. */
 function useReveal<T extends HTMLElement>() {
   const ref = useRef<T | null>(null);
@@ -297,43 +299,6 @@ function CornerFrame() {
   );
 }
 
-function Grain() {
-  return (
-    <div
-      className="pointer-events-none fixed inset-0 z-55 opacity-[0.06]"
-      style={{
-        backgroundImage:
-          "repeating-linear-gradient(0deg, rgba(255,255,255,0.4) 0px, transparent 1px, transparent 2px)",
-      }}
-    />
-  );
-}
-
-/** Textura de cuaderno de laboratorio: retícula milimetrada, casi invisible. */
-function NotebookGrid() {
-  return (
-    <div
-      className="pointer-events-none fixed inset-0 z-0 opacity-[0.05]"
-      style={{
-        backgroundImage: `linear-gradient(${REACTIVO} 1px, transparent 1px), linear-gradient(90deg, ${REACTIVO} 1px, transparent 1px)`,
-        backgroundSize: "34px 34px",
-      }}
-    />
-  );
-}
-
-function Watermark({ label, top }: { label: string; top: string }) {
-  return (
-    <span
-      aria-hidden="true"
-      className="pointer-events-none absolute left-1/2 -translate-x-1/2 select-none text-[38vw] font-black italic leading-none md:text-[22vw]"
-      style={{ top, color: PAPEL, opacity: 0.035, fontFamily: OUTFIT }}
-    >
-      {label}
-    </span>
-  );
-}
-
 /** Nota manuscrita al margen, como una anotación real en un cuaderno de laboratorio. */
 function MarginNote({
   children,
@@ -436,6 +401,10 @@ export default function Home() {
   const [heroMounted, setHeroMounted] = useState(false);
   const [introVisible, setIntroVisible] = useState(true);
   const [scrollP, setScrollP] = useState(0);
+  const navigate = useNavigate();
+  function handleLogin() {
+    navigate("/login");
+  }
 
   useEffect(() => {
     document.body.style.overflow = introVisible ? "hidden" : "";
@@ -496,7 +465,11 @@ export default function Home() {
           </div>
 
           <div className="hidden items-center gap-3 md:flex">
-            <Button variant="text" sx={{ color: PAPEL, textTransform: "none", fontWeight: 500 }}>
+            <Button
+              variant="text"
+              sx={{ color: PAPEL, textTransform: "none", fontWeight: 500 }}
+              onClick={() => handleLogin()}
+            >
               Iniciar sesión
             </Button>
             {/* <Button
@@ -541,7 +514,11 @@ export default function Home() {
             >
               Solicitar demo
             </Button> */}
-            <Button variant="text" sx={{ color: PAPEL, textTransform: "none" }}>
+            <Button
+              variant="text"
+              sx={{ color: PAPEL, textTransform: "none" }}
+              onClick={() => handleLogin()}
+            >
               Iniciar sesión
             </Button>
           </div>
@@ -550,7 +527,7 @@ export default function Home() {
 
       <main className="relative z-10">
         {/* HERO — la molécula ocupa todo el fondo y reacciona al scroll */}
-        <section className="relative flex min-h-[112vh] flex-col items-center justify-center overflow-hidden px-6 text-center">
+        <section className="relative flex min-h-[95vh] flex-col items-center justify-center overflow-hidden px-6 text-center">
           <Watermark label="KBCP" top="6%" />
           <TacoMolecule ambient mounted={heroMounted} reactProgress={scrollP} />
 
@@ -609,13 +586,14 @@ export default function Home() {
                   px: 4,
                   "&:hover": { borderColor: PAPEL },
                 }}
+                onClick={() => handleLogin()}
               >
                 Iniciar sesión
               </Button>
             </div>
           </div>
 
-          <div className="absolute bottom-15 flex flex-col items-center gap-3 opacity-60">
+          <div className="absolute bottom-5 flex flex-col items-center gap-3 opacity-60">
             <span
               className="text-[10px] font-bold uppercase tracking-[0.5em]"
               style={{ color: NEON, fontFamily: MONO }}
