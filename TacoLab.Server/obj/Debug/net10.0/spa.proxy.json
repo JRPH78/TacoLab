@@ -3,7 +3,7 @@
 "ServerUrl": "https://localhost:65515",
 "RedirectUrl": "",
 "LaunchCommand": "npm run dev --host",
-"WorkingDirectory": "C:\\Proyectos\\kevin\\TacoLab\\TacoLab.Server\\..\\tacolab.client",
+"WorkingDirectory": "C:\\Proyectos\\Kevin\\TacoLab\\TacoLab.Server\\..\\tacolab.client",
 "MaxTimeoutInSeconds": "120",
 "KeepRunning": "false"
 }

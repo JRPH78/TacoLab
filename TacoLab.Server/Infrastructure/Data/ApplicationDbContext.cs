@@ -49,8 +49,10 @@ namespace TacoLab.Server.Infrastructure.Data
                 Puesto = "Administrador Intranet",
                 Tipo = "Interno",
                 Activo = true,
+                 
+                //$Admin12345
+                PasswordHash = "AQAAAAIAAYagAAAAELovu4IKaw9K6rsFrYy6xbtMh6skWWknWbSgWjF8wRZI/kanL1GbjKVQM5KnOgFXYQ==",
 
-                PasswordHash = "AQAAAAIAAYagAAAAEDFEdwaqr/Hjc11AyYqOQ8xEINwALEoBj4n4ou45GlQwlQFWeTl7tM9hESYN9vUIeQ==",
 
                 SecurityStamp = "1dc67424-0fdd-4e90-a696-799f7a4f2127",
                 ConcurrencyStamp = "76b039c2-3b9a-4947-9abc-dd2a37c6f34b",

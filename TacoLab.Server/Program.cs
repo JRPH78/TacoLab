@@ -1,12 +1,18 @@
+//using Intranet.Server.Middleware;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TacoLab.Server;
 using TacoLab.Server.Domain.Entities;
 using TacoLab.Server.Infrastructure.Data;
+using TacoLab.Server.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 // Add services to the container.
+builder.Services.AddAppServices();
+
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")
@@ -26,7 +32,25 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddDefaultTokenProviders();
 
 
-builder.Services.AddAppServices();
+//CORS 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Frontend", policy =>
+    {
+        policy
+           .WithOrigins(
+               "https://localhost:65515",
+               "https://192.168.1.5:65515"
+           )
+           .AllowAnyHeader()
+           .AllowAnyMethod();
+        //policy
+        //   .WithOrigins("https://192.168.1.5:65515")
+        //   .AllowAnyHeader()
+        //   .AllowAnyMethod();
+        //("https://192.168.1.5:65515/")
+    });
+});
 
 
 builder.Services.AddControllers();
@@ -42,6 +66,11 @@ app.MapStaticAssets();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/openapi/v1.json", "v1");
+    });
 }
 
 app.UseHttpsRedirection();
@@ -52,6 +81,11 @@ app.MapControllers();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseMiddleware<ExceptionMiddleware>();
+
+//CORS
+app.UseCors("Frontend");
 
 app.MapFallbackToFile("/index.html");
 

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "nAi41/4rM+U=",
+  "dgSpecHash": "PHnD/HRzusc=",
   "success": true,
-  "projectFilePath": "C:\\Proyectos\\kevin\\TacoLab\\TacoLab.Server\\TacoLab.Server.csproj",
+  "projectFilePath": "C:\\Proyectos\\Kevin\\TacoLab\\TacoLab.Server\\TacoLab.Server.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\rafit\\.nuget\\packages\\azure.core\\1.50.0\\azure.core.1.50.0.nupkg.sha512",
     "C:\\Users\\rafit\\.nuget\\packages\\azure.identity\\1.17.1\\azure.identity.1.17.1.nupkg.sha512",

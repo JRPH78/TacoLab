@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Proyectos\\kevin\\TacoLab\\TacoLab.Server\\TacoLab.Server.csproj": {}
+    "C:\\Proyectos\\Kevin\\TacoLab\\TacoLab.Server\\TacoLab.Server.csproj": {}
   },
   "projects": {
-    "C:\\Proyectos\\kevin\\TacoLab\\TacoLab.Server\\TacoLab.Server.csproj": {
+    "C:\\Proyectos\\Kevin\\TacoLab\\TacoLab.Server\\TacoLab.Server.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Proyectos\\kevin\\TacoLab\\TacoLab.Server\\TacoLab.Server.csproj",
+        "projectUniqueName": "C:\\Proyectos\\Kevin\\TacoLab\\TacoLab.Server\\TacoLab.Server.csproj",
         "projectName": "TacoLab.Server",
-        "projectPath": "C:\\Proyectos\\kevin\\TacoLab\\TacoLab.Server\\TacoLab.Server.csproj",
+        "projectPath": "C:\\Proyectos\\Kevin\\TacoLab\\TacoLab.Server\\TacoLab.Server.csproj",
         "packagesPath": "C:\\Users\\rafit\\.nuget\\packages\\",
-        "outputPath": "C:\\Proyectos\\kevin\\TacoLab\\TacoLab.Server\\obj\\",
+        "outputPath": "C:\\Proyectos\\Kevin\\TacoLab\\TacoLab.Server\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

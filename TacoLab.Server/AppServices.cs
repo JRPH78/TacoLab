@@ -14,14 +14,14 @@ namespace TacoLab.Server
     {
         public static void AddAppServices(this IServiceCollection services)
         {
+            // Auth Services
+            services.AddScoped<IAuthService, AuthService>();
 
 
 
         }
         public static void AddIdentity(this IServiceCollection services)
         {
-            // Auth Services
-            services.AddScoped<IAuthService, AuthService>();
 
             //services.AddDefaultIdentity<ApplicationUser>()
             //    .AddRoles<IdentityRole>()

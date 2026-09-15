@@ -1,32 +1,7 @@
-// import { Grain } from "../../components/Grain";
-// import { NotebookGrid } from "../../components/NotebookGrid";
-// import { NEGRO, PAPEL } from "../../utilities/PaleteColors";
-// export default function Login() {
-//   return (
-//     <div
-//       className="relative min-h-screen w-full selection:bg-[#3ECF6E]/30 selection:text-white"
-//       style={{ backgroundColor: NEGRO, color: PAPEL, fontFamily: "'Inter', sans-serif" }}
-//     >
-//       {/* <IntroSequence visible={introVisible} /> */}
-
-//       {/* viñeta radial */}
-//       <div
-//         className="pointer-events-none fixed inset-0 z-0"
-//         style={{
-//           background: `radial-gradient(circle at center, #1a1a17 0%, ${NEGRO} 70%)`,
-//         }}
-//       />
-//       <NotebookGrid />
-//       <Grain />
-//       {/* <CornerFrame /> */}
-//     </div>
-//   );
-// }
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
-  Paper,
   Typography,
   TextField,
   Button,
@@ -42,12 +17,11 @@ import { NEGRO, PAPEL } from "../../utilities/PaleteColors";
 
 const ACCENT = "#3ECF6E";
 
-// Ajustá esto a tu configuración real (env, api client, etc.)
-const API_URL = import.meta.env.VITE_API_URL ?? "https://localhost:5001";
+const API_URL = import.meta.env.VITE_API_URL ?? "https://localhost:7253";
+// const API_URL = "https://192.168.1.5:7253";
 
 interface LoginResponse {
   token: string;
-  // agregá acá lo que tu back devuelva (expiresIn, user, etc.)
 }
 
 export default function Login() {
@@ -62,7 +36,7 @@ export default function Login() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
-    console.log(username, password);
+    alert("URL API: " + API_URL);
 
     if (!username || !password) {
       setError("Completá usuario/email y contraseña.");
@@ -76,6 +50,7 @@ export default function Login() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
       });
+      alert("res" + res.ok);
 
       if (!res.ok) {
         if (res.status === 401) {
@@ -85,14 +60,11 @@ export default function Login() {
       }
 
       const data: LoginResponse = await res.json();
-
-      // Guardá el JWT. Si tu API usa cookies httpOnly, sacá esto
-      // y usá credentials: "include" arriba en el fetch.
       localStorage.setItem("token", data.token);
-
-      navigate("/dashboard"); // cambiá por tu ruta post-login
+      navigate("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error inesperado.");
+      alert(err.message);
     } finally {
       setLoading(false);
     }
@@ -100,7 +72,7 @@ export default function Login() {
 
   return (
     <div
-      className="relative min-h-screen w-full selection:bg-[#3ECF6E]/30 selection:text-white"
+      className="relative min-h-screen w-full selection:bg-[#3ECF6E]/30 selection:text-white overflow-hidden"
       style={{ backgroundColor: NEGRO, color: PAPEL, fontFamily: "'Inter', sans-serif" }}
     >
       {/* viñeta radial */}
@@ -110,6 +82,21 @@ export default function Login() {
           background: `radial-gradient(circle at center, #1a1a17 0%, ${NEGRO} 70%)`,
         }}
       />
+
+      {/* halo de color detrás del panel, típico de glass UI */}
+      <div
+        className="pointer-events-none absolute z-0"
+        style={{
+          top: "50%",
+          left: "50%",
+          width: 560,
+          height: 560,
+          transform: "translate(-50%, -50%)",
+          background: `radial-gradient(circle, ${ACCENT}26 0%, transparent 65%)`,
+          filter: "blur(10px)",
+        }}
+      />
+
       <NotebookGrid />
       <Grain />
 
@@ -124,105 +111,147 @@ export default function Login() {
           px: 2,
         }}
       >
-        <Paper
+        <Box
           component="form"
           onSubmit={handleSubmit}
-          elevation={0}
           sx={{
+            position: "relative",
             width: "100%",
             maxWidth: 380,
-            p: 4,
-            borderRadius: 3,
-            backgroundColor: "rgba(26,26,23,0.75)",
-            backdropFilter: "blur(6px)",
-            border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: "20px",
+            p: "1px", // hueco para el borde-gradiente
+            background: `linear-gradient(160deg, rgba(255,255,255,0.16), rgba(255,255,255,0.02) 40%, ${ACCENT}22 100%)`,
+            boxShadow: "0 20px 60px -12px rgba(0,0,0,0.55)",
           }}
         >
-          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mb: 3 }}>
-            <Box
-              sx={{
-                width: 48,
-                height: 48,
-                borderRadius: "50%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: `${ACCENT}22`,
-                mb: 1.5,
-              }}
-            >
-              <LockOutlined sx={{ color: ACCENT }} />
-            </Box>
-            <Typography variant="h6" sx={{ color: PAPEL, fontWeight: 600 }}>
-              Iniciar sesión
-            </Typography>
-            <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.5)" }}>
-              Ingresá tus credenciales para continuar
-            </Typography>
-          </Box>
-
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
-
-          <TextField
-            fullWidth
-            label="Usuario o email"
-            variant="outlined"
-            margin="normal"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            autoComplete="username"
-            sx={textFieldSx}
-          />
-
-          <TextField
-            fullWidth
-            label="Contraseña"
-            variant="outlined"
-            margin="normal"
-            type={showPassword ? "text" : "password"}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete="current-password"
-            sx={textFieldSx}
-            slotProps={{
-              input: {
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setShowPassword((v) => !v)}
-                      edge="end"
-                      sx={{ color: "rgba(255,255,255,0.6)" }}
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
-
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            disabled={loading}
+          <Box
             sx={{
-              mt: 3,
-              py: 1.2,
-              backgroundColor: ACCENT,
-              color: "#0a0a09",
-              fontWeight: 600,
-              textTransform: "none",
-              "&:hover": { backgroundColor: "#34b85f" },
+              borderRadius: "19px",
+              p: 4,
+              backgroundColor: "rgba(20,20,18,0.55)",
+              backdropFilter: "blur(20px) saturate(160%)",
+              WebkitBackdropFilter: "blur(20px) saturate(160%)",
+              boxShadow:
+                "inset 0 1px 0 rgba(255,255,255,0.08), inset 0 0 40px rgba(255,255,255,0.015)",
             }}
           >
-            {loading ? <CircularProgress size={22} sx={{ color: "#0a0a09" }} /> : "Ingresar"}
-          </Button>
-        </Paper>
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mb: 3.5 }}>
+              <Box
+                sx={{
+                  width: 46,
+                  height: 46,
+                  borderRadius: "14px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: `${ACCENT}1A`,
+                  border: `1px solid ${ACCENT}33`,
+                  mb: 2,
+                }}
+              >
+                <LockOutlined sx={{ color: ACCENT, fontSize: 22 }} />
+              </Box>
+              <Typography
+                variant="h6"
+                sx={{ color: PAPEL, fontWeight: 600, letterSpacing: "-0.01em" }}
+              >
+                Iniciar sesión
+              </Typography>
+              <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.45)", mt: 0.5 }}>
+                Ingresá tus credenciales para continuar
+              </Typography>
+            </Box>
+
+            {error && (
+              <Alert
+                severity="error"
+                sx={{
+                  mb: 2,
+                  backgroundColor: "rgba(211,47,47,0.12)",
+                  color: "#ff8a80",
+                  border: "1px solid rgba(211,47,47,0.25)",
+                  "& .MuiAlert-icon": { color: "#ff8a80" },
+                }}
+              >
+                {error}
+              </Alert>
+            )}
+
+            <TextField
+              fullWidth
+              label="Usuario o email"
+              variant="outlined"
+              margin="normal"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              autoComplete="username"
+              sx={textFieldSx}
+            />
+
+            <TextField
+              fullWidth
+              label="Contraseña"
+              variant="outlined"
+              margin="normal"
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+              sx={textFieldSx}
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowPassword((v) => !v)}
+                        edge="end"
+                        sx={{ color: "rgba(255,255,255,0.5)" }}
+                        aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                      >
+                        {showPassword ? (
+                          <VisibilityOff fontSize="small" />
+                        ) : (
+                          <Visibility fontSize="small" />
+                        )}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
+
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              disabled={loading}
+              disableElevation
+              sx={{
+                mt: 3,
+                py: 1.25,
+                borderRadius: "12px",
+                backgroundColor: ACCENT,
+                color: "#0a0a09",
+                fontWeight: 600,
+                fontSize: "0.95rem",
+                textTransform: "none",
+                boxShadow: `0 8px 20px -6px ${ACCENT}66`,
+                transition: "background-color 150ms ease, transform 150ms ease",
+                "&:hover": {
+                  backgroundColor: "#34b85f",
+                  transform: "translateY(-1px)",
+                },
+                "&:active": { transform: "translateY(0)" },
+                "&.Mui-disabled": {
+                  backgroundColor: `${ACCENT}55`,
+                  color: "rgba(10,10,9,0.6)",
+                },
+              }}
+            >
+              {loading ? <CircularProgress size={22} sx={{ color: "#0a0a09" }} /> : "Ingresar"}
+            </Button>
+          </Box>
+        </Box>
       </Box>
     </div>
   );
@@ -231,10 +260,28 @@ export default function Login() {
 const textFieldSx = {
   "& .MuiOutlinedInput-root": {
     color: PAPEL,
-    "& fieldset": { borderColor: "rgba(255,255,255,0.15)" },
-    "&:hover fieldset": { borderColor: "rgba(255,255,255,0.3)" },
-    "&.Mui-focused fieldset": { borderColor: ACCENT },
+    borderRadius: "10px",
+    backgroundColor: "rgba(255,255,255,0.02)",
+    transition: "border-color 150ms ease",
+    "& fieldset": { borderColor: "rgba(255,255,255,0.12)" },
+    "&:hover fieldset": { borderColor: "rgba(255,255,255,0.28)" },
+    "&.Mui-focused fieldset": { borderColor: "#3ECF6E", borderWidth: "1.5px" },
   },
-  "& .MuiInputLabel-root": { color: "rgba(255,255,255,0.5)" },
-  "& .MuiInputLabel-root.Mui-focused": { color: ACCENT },
+  "& .MuiInputLabel-root": { color: "rgba(255,255,255,0.45)" },
+  "& .MuiInputLabel-root.Mui-focused": { color: "#3ECF6E" },
+  // fix del autofill de Chrome/Edge que rompe el fondo glass
+  "& input:-webkit-autofill": {
+    WebkitTextFillColor: PAPEL,
+    WebkitBoxShadow: "0 0 0 100px rgba(30,30,27,0.9) inset",
+    caretColor: PAPEL,
+    borderRadius: "10px",
+    // truco para que no "salte" el color al hacer focus/hover tras autocompletar
+    transition: "background-color 600000s 0s, color 600000s 0s",
+  },
+  "& input:-webkit-autofill:hover": {
+    WebkitBoxShadow: "0 0 0 100px rgba(30,30,27,0.9) inset",
+  },
+  "& input:-webkit-autofill:focus": {
+    WebkitBoxShadow: "0 0 0 100px rgba(30,30,27,0.9) inset",
+  },
 };

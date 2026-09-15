@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TacoLab.Server")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+81abe42aed78697599b1f134862fd41d51f0e711")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ef40531d8052190b14f1ebae31a69b3f2ade434e")]
 [assembly: System.Reflection.AssemblyProductAttribute("TacoLab.Server")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TacoLab.Server")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
