@@ -14,10 +14,13 @@ export interface MenuItem {
   name: string;
   description: string;
   price: number;
-}
-
-export interface OrderLine {
-  item: MenuItem;
-  quantity: number;
-  notes: string;
+  /**
+   * Si existe, el producto OBLIGA a elegir carne(s) antes de poder agregarse
+   * (torta, gringa, quesadilla con carne, volcán). `max` limita cuántas
+   * carnes distintas se pueden marcar; `min` normalmente es 1.
+   */
+  meatSelection?: {
+    min: number;
+    max: number;
+  };
 }

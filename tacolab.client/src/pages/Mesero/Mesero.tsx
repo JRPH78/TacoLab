@@ -3,11 +3,16 @@ import { NEGRO, PAPEL, REACTIVO, OUTFIT, MONO } from "../../utilities/PaleteColo
 import { NotebookGrid } from "../../components/NotebookGrid";
 import { Grain } from "../../components/Grain";
 import { CATEGORIAS, MENU } from "../../data/menuMock";
-import type { OrderLine } from "../../types/IMenu";
+import {
+  // mismaPersonalizacion,
+  type OrderLine,
+  type SesionPersonalizacion,
+} from "../../types/IOrder";
 import TableGate from "./components/TableGate";
 import CategoryRail from "./components/CategoryRail";
 import MenuItemCard from "./components/MenuItemCard";
 import OrderTicket from "./components/OrderTicket";
+import ItemCustomizeSheet from "./components/ItemCustomizeSheet";
 
 export default function Mesero() {
   const [mesa, setMesa] = useState<string | null>(null);
@@ -18,6 +23,7 @@ export default function Mesero() {
   const [ticketAbierto, setTicketAbierto] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [confirmado, setConfirmado] = useState(false);
+  const [sesion, setSesion] = useState<SesionPersonalizacion>(null);
 
   const itemsVisibles = useMemo(() => {
     return MENU.filter((item) => {
@@ -27,38 +33,101 @@ export default function Mesero() {
     });
   }, [categoriaActiva, busqueda]);
 
-  function agregar(itemId: string) {
-    setLineas((prev) => {
-      const existente = prev.find((l) => l.item.id === itemId);
-      if (existente) {
-        return prev.map((l) => (l.item.id === itemId ? { ...l, quantity: l.quantity + 1 } : l));
-      }
-      const item = MENU.find((m) => m.id === itemId);
-      if (!item) return prev;
-      return [...prev, { item, quantity: 1, notes: "" }];
-    });
-  }
+  //  helpers de lectura
 
-  function incrementar(itemId: string) {
-    setLineas((prev) =>
-      prev.map((l) => (l.item.id === itemId ? { ...l, quantity: l.quantity + 1 } : l)),
+  /** La línea "sin modificar" de un producto (sin carnes, sin modificadores, sin nota). */
+  function lineaPlana(itemId: string) {
+    return lineas.find(
+      (l) =>
+        l.item.id === itemId &&
+        l.meats.length === 0 &&
+        l.modifiers.length === 0 &&
+        l.freeNote === "",
     );
   }
 
-  function decrementar(itemId: string) {
+  /** Suma de todas las líneas (planas + personalizadas) de un producto. */
+  function cantidadTotal(itemId: string) {
+    return lineas.filter((l) => l.item.id === itemId).reduce((acc, l) => acc + l.quantity, 0);
+  }
+
+  //  mutaciones sobre líneas concretas (por id de línea)
+
+  function incrementarLinea(lineaId: string) {
+    setLineas((prev) =>
+      prev.map((l) => (l.id === lineaId ? { ...l, quantity: l.quantity + 1 } : l)),
+    );
+  }
+
+  function decrementarLinea(lineaId: string) {
     setLineas((prev) =>
       prev
-        .map((l) => (l.item.id === itemId ? { ...l, quantity: l.quantity - 1 } : l))
+        .map((l) => (l.id === lineaId ? { ...l, quantity: l.quantity - 1 } : l))
         .filter((l) => l.quantity > 0),
     );
   }
 
-  function quitar(itemId: string) {
-    setLineas((prev) => prev.filter((l) => l.item.id !== itemId));
+  function quitarLinea(lineaId: string) {
+    setLineas((prev) => prev.filter((l) => l.id !== lineaId));
   }
 
-  function cantidadDe(itemId: string) {
-    return lineas.find((l) => l.item.id === itemId)?.quantity ?? 0;
+  //  alta rápida (sin notas) desde la tarjeta
+
+  function agregarPlano(itemId: string) {
+    const existente = lineaPlana(itemId);
+    if (existente) {
+      incrementarLinea(existente.id);
+      return;
+    }
+    const item = MENU.find((m) => m.id === itemId);
+    if (!item) return;
+    setLineas((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), item, quantity: 1, meats: [], modifiers: [], freeNote: "" },
+    ]);
+  }
+
+  function decrementarPlano(itemId: string) {
+    const existente = lineaPlana(itemId);
+    if (existente) decrementarLinea(existente.id);
+  }
+
+  function agregarLinea(
+    itemId: string,
+    cantidad: number,
+    meats: string[],
+    modifiers: string[],
+    freeNote: string,
+  ) {
+    const item = MENU.find((m) => m.id === itemId);
+    if (!item) return;
+    setLineas((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), item, quantity: cantidad, meats, modifiers, freeNote },
+    ]);
+    // sigue sin hacer setSesion(null) — el modal decide cuándo cerrarse
+  }
+
+  //  edición: sobreescribe la línea que ya estaba en el ticket.
+
+  function guardarEdicionLinea(
+    lineaId: string,
+    cantidad: number,
+    meats: string[],
+    modifiers: string[],
+    freeNote: string,
+  ) {
+    setLineas((prev) =>
+      prev.map((l) =>
+        l.id === lineaId ? { ...l, quantity: cantidad, meats, modifiers, freeNote } : l,
+      ),
+    );
+    setSesion(null);
+  }
+
+  function eliminarLineaDesdeModal(lineaId: string) {
+    quitarLinea(lineaId);
+    setSesion(null);
   }
 
   async function enviarPedido() {
@@ -75,6 +144,9 @@ export default function Mesero() {
 
   const totalPiezas = lineas.reduce((acc, l) => acc + l.quantity, 0);
   const totalPedido = lineas.reduce((acc, l) => acc + l.item.price * l.quantity, 0);
+  const accentSesion = sesion
+    ? (CATEGORIAS.find((c) => c.id === sesion.item.categoryId)?.color ?? REACTIVO)
+    : REACTIVO;
 
   if (!mesa) {
     return (
@@ -144,10 +216,12 @@ export default function Mesero() {
                 key={item.id}
                 item={item}
                 accent={categoria?.color ?? REACTIVO}
-                quantity={cantidadDe(item.id)}
-                onAdd={() => agregar(item.id)}
-                onIncrement={() => incrementar(item.id)}
-                onDecrement={() => decrementar(item.id)}
+                quantityPlano={lineaPlana(item.id)?.quantity ?? 0}
+                quantityTotal={cantidadTotal(item.id)}
+                onAddPlano={() => agregarPlano(item.id)}
+                onIncrementPlano={() => agregarPlano(item.id)}
+                onDecrementPlano={() => decrementarPlano(item.id)}
+                onPersonalizar={() => setSesion({ modo: "agregar", item })}
               />
             );
           })}
@@ -169,11 +243,31 @@ export default function Mesero() {
         enviando={enviando}
         abierto={ticketAbierto}
         onCerrar={() => setTicketAbierto(false)}
-        onIncrementar={incrementar}
-        onDecrementar={decrementar}
-        onQuitar={quitar}
+        onIncrementar={incrementarLinea}
+        onDecrementar={decrementarLinea}
+        onQuitar={quitarLinea}
+        onEditar={(linea) =>
+          setSesion({
+            modo: "editar",
+            item: linea.item,
+            lineaId: linea.id,
+            cantidad: linea.quantity,
+            meats: linea.meats,
+            modifiers: linea.modifiers,
+            freeNote: linea.freeNote,
+          })
+        }
         onNotas={setNotas}
         onEnviar={enviarPedido}
+      />
+
+      <ItemCustomizeSheet
+        sesion={sesion}
+        accent={accentSesion}
+        onClose={() => setSesion(null)}
+        onAgregar={agregarLinea}
+        onGuardarEdicion={guardarEdicionLinea}
+        onEliminarLinea={eliminarLineaDesdeModal}
       />
 
       {totalPiezas > 0 && !ticketAbierto && (

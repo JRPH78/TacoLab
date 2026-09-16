@@ -36,7 +36,7 @@ export default function Login() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
-    alert("URL API: " + API_URL);
+    // alert("URL API: " + API_URL);
 
     if (!username || !password) {
       setError("Completá usuario/email y contraseña.");
@@ -50,7 +50,7 @@ export default function Login() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
       });
-      alert("res" + res.ok);
+      // alert("res" + res.ok);
 
       if (!res.ok) {
         if (res.status === 401) {
@@ -64,7 +64,7 @@ export default function Login() {
       navigate("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error inesperado.");
-      alert(err.message);
+      // alert(err.message);
     } finally {
       setLoading(false);
     }

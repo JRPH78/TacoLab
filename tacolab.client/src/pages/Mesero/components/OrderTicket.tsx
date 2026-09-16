@@ -1,7 +1,8 @@
 import { useMemo } from "react";
 import CloseIcon from "@mui/icons-material/Close";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlineRounded";
-import type { OrderLine } from "../../../types/IMenu";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlineOutlined";
+import { formatearNotas, type OrderLine } from "../../../types/IOrder";
 import { NEGRO, PAPEL, REACTIVO, FUEGO, OUTFIT, MONO } from "../../../utilities/PaleteColors";
 
 interface OrderTicketProps {
@@ -11,9 +12,12 @@ interface OrderTicketProps {
   enviando: boolean;
   abierto: boolean;
   onCerrar: () => void;
-  onIncrementar: (id: string) => void;
-  onDecrementar: (id: string) => void;
-  onQuitar: (id: string) => void;
+  /** Reciben el id de la LÍNEA, no del producto — un mismo producto puede
+   * tener varias líneas con distinta personalización. */
+  onIncrementar: (lineaId: string) => void;
+  onDecrementar: (lineaId: string) => void;
+  onQuitar: (lineaId: string) => void;
+  onEditar: (linea: OrderLine) => void;
   onNotas: (texto: string) => void;
   onEnviar: () => void;
 }
@@ -28,6 +32,7 @@ export default function OrderTicket({
   onIncrementar,
   onDecrementar,
   onQuitar,
+  onEditar,
   onNotas,
   onEnviar,
 }: OrderTicketProps) {
@@ -74,20 +79,56 @@ export default function OrderTicket({
           </p>
         ) : (
           <ul className="flex flex-col gap-3">
-            {lineas.map((l) => (
-              <li
-                key={l.item.id}
-                className="rounded-xl border p-3"
-                style={{ borderColor: "rgba(244,239,227,0.1)" }}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+            {lineas.map((l) => {
+              const notasLinea = formatearNotas(l.meats, l.modifiers, l.freeNote);
+              return (
+                <li
+                  key={l.id}
+                  className="rounded-xl border p-3"
+                  style={{ borderColor: "rgba(244,239,227,0.1)" }}
+                >
+                  <div className="mb-1 flex items-start justify-between gap-2">
+                    <span
+                      className="text-sm font-semibold"
+                      style={{ fontFamily: OUTFIT, color: PAPEL }}
+                    >
+                      {l.item.name}
+                    </span>
+                    <div className="flex shrink-0 items-center gap-2.5">
+                      <button
+                        onClick={() => onEditar(l)}
+                        style={{ color: "rgba(244,239,227,0.6)" }}
+                        aria-label="Editar línea"
+                      >
+                        <EditOutlinedIcon fontSize="small" />
+                      </button>
+                      <button
+                        onClick={() => onQuitar(l.id)}
+                        style={{ color: FUEGO }}
+                        aria-label="Quitar del pedido"
+                      >
+                        <DeleteOutlineIcon fontSize="small" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {notasLinea && (
+                    <button
+                      onClick={() => onEditar(l)}
+                      className="mb-2 block text-left text-[11px] italic underline decoration-dotted underline-offset-2"
+                      style={{ color: REACTIVO, fontFamily: MONO }}
+                    >
+                      {notasLinea}
+                    </button>
+                  )}
+
+                  <div className="flex items-center justify-between">
                     <div
                       className="flex items-center gap-1 rounded-full border px-2 py-0.5"
                       style={{ borderColor: "rgba(244,239,227,0.2)" }}
                     >
                       <button
-                        onClick={() => onDecrementar(l.item.id)}
+                        onClick={() => onDecrementar(l.id)}
                         className="text-sm font-bold"
                         style={{ color: PAPEL }}
                         aria-label="Restar"
@@ -101,7 +142,7 @@ export default function OrderTicket({
                         {l.quantity}
                       </span>
                       <button
-                        onClick={() => onIncrementar(l.item.id)}
+                        onClick={() => onIncrementar(l.id)}
                         className="text-sm font-bold"
                         style={{ color: PAPEL }}
                         aria-label="Sumar"
@@ -110,30 +151,15 @@ export default function OrderTicket({
                       </button>
                     </div>
                     <span
-                      className="text-sm font-semibold"
-                      style={{ fontFamily: OUTFIT, color: PAPEL }}
-                    >
-                      {l.item.name}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span
                       className="text-xs font-bold"
                       style={{ fontFamily: MONO, color: "rgba(244,239,227,0.7)" }}
                     >
                       ${l.item.price * l.quantity}
                     </span>
-                    <button
-                      onClick={() => onQuitar(l.item.id)}
-                      style={{ color: FUEGO }}
-                      aria-label="Quitar del pedido"
-                    >
-                      <DeleteOutlineIcon fontSize="small" />
-                    </button>
                   </div>
-                </div>
-              </li>
-            ))}
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>
@@ -142,7 +168,7 @@ export default function OrderTicket({
         <textarea
           value={notas}
           onChange={(e) => onNotas(e.target.value)}
-          placeholder="Notas para cocina (sin cebolla, extra salsa...)"
+          placeholder="Notas generales del pedido (para toda la mesa)"
           rows={2}
           className="mb-4 w-full resize-none rounded-lg border bg-transparent p-2.5 text-xs outline-none"
           style={{ borderColor: "rgba(244,239,227,0.15)", color: PAPEL, fontFamily: MONO }}
@@ -174,7 +200,6 @@ export default function OrderTicket({
 
   return (
     <>
-      {/* Panel fijo en escritorio */}
       <aside
         className="fixed right-0 top-0 z-40 hidden h-screen w-[360px] border-l p-6 backdrop-blur-xl lg:block"
         style={{ backgroundColor: "rgba(11,11,10,0.75)", borderColor: "rgba(244,239,227,0.1)" }}
@@ -182,7 +207,6 @@ export default function OrderTicket({
         {contenido}
       </aside>
 
-      {/* Hoja inferior en móvil */}
       <div
         className={`fixed inset-x-0 bottom-0 z-50 max-h-[85vh] rounded-t-3xl border-t p-6 backdrop-blur-xl transition-transform duration-300 lg:hidden ${
           abierto ? "translate-y-0" : "translate-y-full"
